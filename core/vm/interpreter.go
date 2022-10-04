@@ -17,7 +17,10 @@
 package vm
 
 import (
+	"fmt"
 	"hash"
+	"os"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
@@ -114,6 +117,7 @@ func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 // considered a revert-and-consume-all-gas operation except for
 // ErrExecutionReverted which means revert-and-keep-gas-left.
 func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (ret []byte, err error) {
+	interpreterTs_begin := time.Now().UnixMicro() //毫秒为单位的时间戳
 	// Increment the call depth which is restricted to 1024
 	in.evm.depth++
 	defer func() { in.evm.depth-- }()
@@ -154,7 +158,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		logged  bool   // deferred EVMLogger should ignore already logged steps
 		res     []byte // result of the opcode execution function
 	)
-	// Don't move this deferred function, it's placed before the capturestate-deferred method,
+	// Don't move this deferrred function, it's placed before the capturestate-deferred method,
 	// so that it get's executed _after_: the capturestate needs the stacks before
 	// they are returned to the pools
 	defer func() {
@@ -222,20 +226,50 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			if err != nil || !contract.UseGas(dynamicCost) {
 				return nil, ErrOutOfGas
 			}
-			// Do tracing before memory expansion
-			if in.cfg.Debug {
-				in.cfg.Tracer.CaptureState(pc, op, gasCopy, cost, callContext, in.returnData, in.evm.depth, err)
-				logged = true
-			}
 			if memorySize > 0 {
 				mem.Resize(memorySize)
 			}
-		} else if in.cfg.Debug {
+		}
+		if in.cfg.Debug {
 			in.cfg.Tracer.CaptureState(pc, op, gasCopy, cost, callContext, in.returnData, in.evm.depth, err)
 			logged = true
 		}
 		// execute the operation
+
+		// beginTs := time.Now().UnixMicro() //毫秒为单位的时间戳
+		beginTs := time.Now().UnixNano() //以毫秒为单位差异不大，存在很多为零的情况，采用更精确的纳秒为单位的时间戳
 		res, err = operation.execute(&pc, in, callContext)
+		// endTs := time.Now().UnixMicro()
+		endTs := time.Now().UnixNano()
+
+		// timeCost := endTs - beginTs
+		// opStr := op.String()
+		// instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns, beginTs:%v ns, endTs:%v ns", opStr, timeCost, beginTs, endTs)
+
+		// fAll, _errAll := os.OpenFile("./allInstTimeStamp.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+		// if _errAll != nil {
+		// 	fmt.Println(_errAll.Error())
+		// }
+		// defer fAll.Close()
+		// currentTime := time.Now()
+		// fAll.WriteString(currentTime.String()[:25] + ":")
+		// fAll.WriteString(instExeInfo + "\n")
+
+		if op >= MLOAD && op <= SSTORE {
+			timeCost := endTs - beginTs
+			opStr := op.String()
+			instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns, beginTs:%v ns, endTs:%v ns", opStr, timeCost, beginTs, endTs)
+			f, _err := os.OpenFile("./storageOpcodesTimeStamp.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+			// instExeInfo := fmt.Sprintf("Instruction %s executing time(ms), timeCost:%v ms, beginTs:%v ms, endTs:%v ms", str, timeCost, beginTs, endTs)
+			// instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns, beginTs:%v ns, endTs:%v ns", str, timeCost, beginTs, endTs)
+			if _err != nil {
+				fmt.Println(_err.Error())
+			}
+			defer f.Close()
+			currentTime := time.Now()
+			f.WriteString(currentTime.String()[:25] + ":")
+			f.WriteString(instExeInfo + "\n")
+		}
 		if err != nil {
 			break
 		}
@@ -245,6 +279,16 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	if err == errStopToken {
 		err = nil // clear stop token error
 	}
-
+	interpreterTs_end := time.Now().UnixMicro() //毫秒为单位的时间戳
+	interpreterTimeCost := interpreterTs_end - interpreterTs_begin
+	timeInfo := fmt.Sprintf("This interpreter instance executing time(ms):%v ms", interpreterTimeCost)
+	fAll, _errAll := os.OpenFile("./interpreterTimeStamp.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+	if _errAll != nil {
+		fmt.Println(_errAll.Error())
+	}
+	defer fAll.Close()
+	currentTime := time.Now()
+	fAll.WriteString(currentTime.String()[:25] + ":")
+	fAll.WriteString(timeInfo + "\n")
 	return res, err
 }
