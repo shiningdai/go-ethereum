@@ -513,13 +513,67 @@ func opMstore8(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]
 	return nil, nil
 }
 
+// func opSload(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
+// 	loc := scope.Stack.peek()
+// 	hash := common.Hash(loc.Bytes32())
+// 	val := interpreter.evm.StateDB.GetState(scope.Contract.Address(), hash)
+// 	loc.SetBytes(val.Bytes())
+// 	return nil, nil
+// }
+
+// func opSstore(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
+// 	if interpreter.readOnly {
+// 		return nil, ErrWriteProtection
+// 	}
+// 	loc := scope.Stack.pop()
+// 	val := scope.Stack.pop()
+// 	interpreter.evm.StateDB.SetState(scope.Contract.Address(),
+// 		loc.Bytes32(), val.Bytes32())
+// 	return nil, nil
+// }
+// 采用类似插装的方式改变SLOAD SSTORE指令的执行过程
+// 不直接访问stateDB，先访问新添加的MemStorageCache，如果“未命中”再执行原来的opSload和opSstore过程
+
+
 func opSload(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
+	// do somthing on MemStorageCache
 	loc := scope.Stack.peek()
-	hash := common.Hash(loc.Bytes32())
-	val := interpreter.evm.StateDB.GetState(scope.Contract.Address(), hash)
-	loc.SetBytes(val.Bytes())
+	val := scope.MemSC.getValue(loc.Bytes32())
+	// if not exists in MemStorageCache
+	if (val == nil) {
+		hash := common.Hash(loc.Bytes32())
+		sval := interpreter.evm.StateDB.GetState(scope.Contract.Address(), hash)
+		val = sval.Bytes()
+		scope.MemSC.getValue(loc.Bytes32(), val)
+	}
+	loc.SetBytes(val)
 	return nil, nil
 }
+
+func opSstore(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
+	if interpreter.readOnly {
+		return nil, ErrWriteProtection
+	}
+	// do somthing on MemStorageCache
+	loc := scope.Stack.pop()
+	val := scope.Stack.pop()
+
+	scope.MemSC.setValue(scope.Contract.Address(),
+		loc.Bytes32(), val.Bytes32())
+
+	
+	return nil, nil
+	// if some conditions
+		// opSstoreD(...)
+}
+
+// func opSload(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
+// 	loc := scope.Stack.peek()
+// 	hash := common.Hash(loc.Bytes32())
+// 	val := interpreter.evm.StateDB.GetState(scope.Contract.Address(), hash)
+// 	loc.SetBytes(val.Bytes())
+// 	return nil, nil
+// }
 
 func opSstore(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
 	if interpreter.readOnly {

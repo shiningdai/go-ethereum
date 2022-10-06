@@ -44,6 +44,7 @@ type Config struct {
 type ScopeContext struct {
 	Memory   *Memory
 	Stack    *Stack
+	MemStorageCache *StrageCache
 	Contract *Contract
 }
 
@@ -142,10 +143,13 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		op          OpCode        // current opcode
 		mem         = NewMemory() // bound memory
 		stack       = newstack()  // local stack
+		scache 		= NewMemStorageCache()	// runtime storage cache
 		callContext = &ScopeContext{
 			Memory:   mem,
 			Stack:    stack,
 			Contract: contract,
+			StorageCache: scache
+
 		}
 		// For optimisation reason we're using uint64 as the program counter.
 		// It's theoretically possible to go above 2^64. The YP defines the PC
