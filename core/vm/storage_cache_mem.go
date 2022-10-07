@@ -17,7 +17,7 @@
 package vm
 
 import (
-	"github.com/holiman/uint256"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // Lengths of hashes and addresses in bytes.
@@ -29,7 +29,8 @@ const (
 	// Storage value length
 	StorageUnitLength = 32
 )
-/* 
+
+/*
 需要结合opSload和opSstore两个指令的具体实现进行设计：
 opSload：
 1.首先从栈中读取状态变量的存储位置-loc （loc是一个地址，或者变量引用，loc.Bytes32()是取出该地址处的32字节的数据，SetBytes()写数据）
@@ -71,7 +72,7 @@ msc_b.sKey = 1; msc_b.sOffset = 0;msc_b.sValue = 16;
 // 	// sOffset   	 []byte	// the byte offset in one slot (a pair of key-value data), byte
 // 	// sValue       []byte	// the value (the data of state variable) of key-value database (storage)
 // 	map data [int][]Bytes32	// one slot : key -> value
-// 	// lastGasCost  uint64 
+// 	// lastGasCost  uint64
 // }
 
 // // Key returns the asked key
@@ -92,13 +93,19 @@ msc_b.sKey = 1; msc_b.sOffset = 0;msc_b.sValue = 16;
 // Address represents the 20 byte address of an Ethereum account.
 type Address [AddressLength]byte
 type StorageKey [StorageUnitLength]byte
-type StorageValue [StorageUnitLength]byte
+
+// type StorageValue [StorageUnitLength]byte
+type StorageValue []byte
+
 // StorageSlot represents one store unit in storage, a key-value database
-type StorageSlot map [StorageKey]StorageValue
+type StorageSlot map[StorageKey]StorageValue
+
+// type StorageCache map[Address]StorageSlot
+type StorageCache map[common.Address]StorageSlot
 
 // MemStorageCache implements a cache memory model for the ethereum storage.
 type MemStorageCache struct {
-	map data [Address]StorageSlot	// one slot : key -> value	
+	data StorageCache // one slot : key -> value
 }
 
 // NewMemStorageCache returns a new MemStorageCache model.
@@ -107,25 +114,28 @@ func NewMemStorageCache() *MemStorageCache {
 }
 
 // getValue returns the asked value with specific Address "addr" and StorageKey "key"
-func (msc *MemStorageCache) getValue(Address addr, StorageKey key) []byte { 
-	if msc.data[addr][key] exist {
-		return msc.data[addr][Key]
+func (msc *MemStorageCache) getValue(addr common.Address, key StorageKey) []byte {
+	_, ok := msc.data[addr][key]
+	if ok {
+		return msc.data[addr][key]
 	}
 	return nil
 }
 
 // setValue write StorageValue "value" into specific Address "addr" and StorageKey "key"
-func (msc *MemStorageCache) setValue(Address addr, StorageKey key, StorageValue value) []byte {
-	msc.data[addr][Key] = value;
+func (msc *MemStorageCache) setValue(addr common.Address, key StorageKey, value StorageValue) []byte {
+	msc.data[addr][key] = value
 	return nil
 }
 
 // preload implementation
 func (msc *MemStorageCache) preload() []byte {
 	// pass
+	return nil
 }
 
 // preload implementation
 func (msc *MemStorageCache) persistence() []byte {
 	// pass
+	return nil
 }

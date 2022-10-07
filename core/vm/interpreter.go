@@ -42,10 +42,10 @@ type Config struct {
 // ScopeContext contains the things that are per-call, such as stack and memory,
 // but not transients like pc and gas
 type ScopeContext struct {
-	Memory   *Memory
-	Stack    *Stack
-	MemStorageCache *StrageCache
-	Contract *Contract
+	Memory       *Memory
+	Stack        *Stack
+	StorageCache *MemStorageCache
+	Contract     *Contract
 }
 
 // keccakState wraps sha3.state. In addition to the usual hash methods, it also supports
@@ -140,16 +140,15 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	}
 
 	var (
-		op          OpCode        // current opcode
-		mem         = NewMemory() // bound memory
-		stack       = newstack()  // local stack
-		scache 		= NewMemStorageCache()	// runtime storage cache
+		op          OpCode                 // current opcode
+		mem         = NewMemory()          // bound memory
+		stack       = newstack()           // local stack
+		scache      = NewMemStorageCache() // runtime storage cache
 		callContext = &ScopeContext{
-			Memory:   mem,
-			Stack:    stack,
-			Contract: contract,
-			StorageCache: scache
-
+			Memory:       mem,
+			Stack:        stack,
+			Contract:     contract,
+			StorageCache: scache,
 		}
 		// For optimisation reason we're using uint64 as the program counter.
 		// It's theoretically possible to go above 2^64. The YP defines the PC
