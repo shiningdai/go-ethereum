@@ -539,13 +539,13 @@ func opSload(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]by
 	loc := scope.Stack.peek()
 	val := scope.StorageCache.getValue(scope.Contract.Address(), loc.Bytes32())
 	// if not exists in MemStorageCache
-	if val == nil {
+	// if val == nil {
+	if val == (common.Hash{}) {
 		hash := common.Hash(loc.Bytes32())
-		sval := interpreter.evm.StateDB.GetState(scope.Contract.Address(), hash)
-		val = sval.Bytes()
+		val := interpreter.evm.StateDB.GetState(scope.Contract.Address(), hash)
 		scope.StorageCache.setValue(scope.Contract.Address(), loc.Bytes32(), val)
 	}
-	loc.SetBytes(val)
+	loc.SetBytes(val.Bytes())
 	return nil, nil
 }
 
@@ -558,11 +558,8 @@ func opSstore(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]b
 	val := scope.Stack.pop()
 
 	scope.StorageCache.setValue(scope.Contract.Address(),
-		loc.Bytes32(), val.Bytes())
-
+		loc.Bytes32(), val.Bytes32())
 	return nil, nil
-	// if some conditions
-	// opSstoreD(...)
 }
 
 // func opSload(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {

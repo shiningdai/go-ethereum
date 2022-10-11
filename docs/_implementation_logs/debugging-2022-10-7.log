@@ -1,0 +1,184 @@
+dsr@dell-PowerEdge-R740:~/experiments/m_ethereum/motivation_verify_db/expr_oprations/scripts$ python test7_execute_perf2.py 
+2022-10-07 17:06:10,806 - test7_execute_perf2.py[line:151] - INFO: 
+Start to connect blockchain network!
+2022-10-07 17:06:10,853 - test7_execute_perf2.py[line:152] - INFO: isConnected: True
+Traceback (most recent call last):
+  File "test7_execute_perf2.py", line 156, in <module>
+    m_contractAddress = deploy_contract()
+  File "test7_execute_perf2.py", line 21, in deploy_contract
+    gas_estimate = w3.eth.estimateGas({'data':code})
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/eth.py", line 868, in estimate_gas
+    return self._estimate_gas(transaction, block_identifier)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/module.py", line 57, in caller
+    result = w3.manager.request_blocking(method_str,
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/manager.py", line 198, in request_blocking
+    return self.formatted_response(response,
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/manager.py", line 171, in formatted_response
+    raise ValueError(response["error"])
+ValueError: {'code': -32603, 'message': 'method handler crashed'}
+dsr@dell-PowerEdge-R740:~/experiments/m_ethereum/motivation_verify_db/expr_oprations/scripts$ python test7_execute_perf2.py 
+2022-10-07 21:31:49,116 - test7_execute_perf2.py[line:151] - INFO: 
+Start to connect blockchain network!
+2022-10-07 21:31:49,161 - test7_execute_perf2.py[line:152] - INFO: isConnected: True
+2022-10-07 21:31:49,176 - test7_execute_perf2.py[line:22] - INFO: gas_estimate:
+2022-10-07 21:31:49,176 - test7_execute_perf2.py[line:23] - INFO: 311291
+2022-10-07 21:31:51,886 - test7_execute_perf2.py[line:33] - INFO: tx_receipt:
+2022-10-07 21:31:51,887 - test7_execute_perf2.py[line:34] - INFO: AttributeDict({'blockHash': HexBytes('0xc7c7b94feae9b13f26d970d5442092bf81fd13d809220ecd5c46d12bd73d0a30'), 'blockNumber': 30, 'contractAddress': '0xFa74D4ACe2aA5C91686A3D8213cf1cce088d80CD', 'cumulativeGasUsed': 311291, 'effectiveGasPrice': 1000000000, 'from': '0x24aD884F2436eDb6F81def2fA99E087087BE8A6E', 'gasUsed': 311291, 'logs': [], 'logsBloom': HexBytes('0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'), 'status': 1, 'to': None, 'transactionHash': HexBytes('0x2b3c23b9666e3f59142d2c6091728c73709539348c394f0897a9ae6fd56f5304'), 'transactionIndex': 0, 'type': '0x0'})
+2022-10-07 21:31:51,887 - test7_execute_perf2.py[line:35] - INFO: tx_receipt.contractAddress:
+2022-10-07 21:31:51,887 - test7_execute_perf2.py[line:36] - INFO: 0xFa74D4ACe2aA5C91686A3D8213cf1cce088d80CD
+2022-10-07 21:31:54,653 - test7_execute_perf2.py[line:59] - INFO: Storage variable expecctedNum initial value := 0
+2022-10-07 21:31:54,697 - test7_execute_perf2.py[line:63] - INFO: call function setFibonacci with arg 59, finished.
+2022-10-07 21:31:55,046 - test7_execute_perf2.py[line:65] - INFO: Call function -setFibonacci- received transaction receipt!
+2022-10-07 21:31:55,090 - test7_execute_perf2.py[line:70] - INFO: Storage variable expecctedNum after setted:= 59
+
+2022-10-07 21:31:55,158 - test7_execute_perf2.py[line:77] - INFO: Storage variable expecctedNum after setted:= 59
+2022-10-07 21:31:55,383 - test7_execute_perf2.py[line:83] - INFO: Storage variable finalFib := 0
+2022-10-07 21:31:56,049 - test7_execute_perf2.py[line:92] - INFO: Call function -fibonacci- received transaction receipt!
+2022-10-07 21:31:56,049 - test7_execute_perf2.py[line:93] - INFO: Time Cost(fibonacci):
+2022-10-07 21:31:56,049 - test7_execute_perf2.py[line:95] - INFO: 0.052974136000000005s
+2022-10-07 21:31:56,083 - test7_execute_perf2.py[line:99] - INFO: Storage variable finalFib after call fibonacci := 591286729879
+
+2022-10-07 21:31:56,113 - test7_execute_perf2.py[line:106] - INFO: Storage variable expecctedNum after setted:= 59
+2022-10-07 21:31:56,162 - test7_execute_perf2.py[line:112] - INFO: Storage variable finalFib := 591286729879
+2022-10-07 21:31:56,562 - test7_execute_perf2.py[line:121] - INFO: Call function -fibonacci_light- received transaction receipt!
+2022-10-07 21:31:56,562 - test7_execute_perf2.py[line:122] - INFO: Time Cost(fibonacci_light):
+2022-10-07 21:31:56,562 - test7_execute_perf2.py[line:124] - INFO: 0.03165134400000014s
+2022-10-07 21:31:56,630 - test7_execute_perf2.py[line:128] - INFO: Storage variable finalFib after call fibonacci_light := 591286729879
+
+2022-10-07 21:31:56,630 - test7_execute_perf2.py[line:166] - INFO: fibTime : fibLightTime = 0.05297 : 0.03165
+2022-10-07 21:31:56,630 - test7_execute_perf2.py[line:167] - INFO: Finish one epoch test!
+
+
+
+2022-10-07 21:31:58,823 - test7_execute_perf2.py[line:59] - INFO: Storage variable expecctedNum initial value := 59
+2022-10-07 21:31:58,856 - test7_execute_perf2.py[line:63] - INFO: call function setFibonacci with arg 50, finished.
+2022-10-07 21:31:59,541 - test7_execute_perf2.py[line:65] - INFO: Call function -setFibonacci- received transaction receipt!
+2022-10-07 21:31:59,581 - test7_execute_perf2.py[line:70] - INFO: Storage variable expecctedNum after setted:= 50
+
+2022-10-07 21:31:59,608 - test7_execute_perf2.py[line:77] - INFO: Storage variable expecctedNum after setted:= 50
+2022-10-07 21:31:59,705 - test7_execute_perf2.py[line:83] - INFO: Storage variable finalFib := 591286729879
+2022-10-07 21:32:00,384 - test7_execute_perf2.py[line:92] - INFO: Call function -fibonacci- received transaction receipt!
+2022-10-07 21:32:00,385 - test7_execute_perf2.py[line:93] - INFO: Time Cost(fibonacci):
+2022-10-07 21:32:00,386 - test7_execute_perf2.py[line:95] - INFO: 0.04723079299999999s
+2022-10-07 21:32:00,411 - test7_execute_perf2.py[line:99] - INFO: Storage variable finalFib after call fibonacci := 7778742049
+
+2022-10-07 21:32:00,431 - test7_execute_perf2.py[line:106] - INFO: Storage variable expecctedNum after setted:= 50
+2022-10-07 21:32:00,544 - test7_execute_perf2.py[line:112] - INFO: Storage variable finalFib := 7778742049
+2022-10-07 21:32:00,915 - test7_execute_perf2.py[line:121] - INFO: Call function -fibonacci_light- received transaction receipt!
+2022-10-07 21:32:00,917 - test7_execute_perf2.py[line:122] - INFO: Time Cost(fibonacci_light):
+2022-10-07 21:32:00,917 - test7_execute_perf2.py[line:124] - INFO: 0.03442661299999994s
+2022-10-07 21:32:00,947 - test7_execute_perf2.py[line:128] - INFO: Storage variable finalFib after call fibonacci_light := 7778742049
+
+2022-10-07 21:32:00,947 - test7_execute_perf2.py[line:166] - INFO: fibTime : fibLightTime = 0.04723 : 0.03443
+2022-10-07 21:32:00,947 - test7_execute_perf2.py[line:167] - INFO: Finish one epoch test!
+
+
+
+^CTraceback (most recent call last):
+  File "test7_execute_perf2.py", line 161, in <module>
+    contractInst, option = buildContractInst(m_contractAddress)
+  File "test7_execute_perf2.py", line 52, in buildContractInst
+    w3.geth.personal.unlock_account(accounts[0], '001')
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/geth.py", line 153, in unlock_account
+    return self._unlock_account(account, passphrase, duration)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/module.py", line 57, in caller
+    result = w3.manager.request_blocking(method_str,
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/manager.py", line 197, in request_blocking
+    response = self._make_request(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/manager.py", line 150, in _make_request
+    return request_func(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/middleware/formatting.py", line 94, in middleware
+    response = make_request(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/middleware/gas_price_strategy.py", line 90, in middleware
+    return make_request(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/middleware/formatting.py", line 94, in middleware
+    response = make_request(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/middleware/attrdict.py", line 33, in middleware
+    response = make_request(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/middleware/formatting.py", line 94, in middleware
+    response = make_request(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/middleware/formatting.py", line 94, in middleware
+    response = make_request(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/middleware/formatting.py", line 94, in middleware
+    response = make_request(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/middleware/buffered_gas_estimate.py", line 40, in middleware
+    return make_request(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/providers/auto.py", line 94, in make_request
+    return self._proxy_request(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/providers/auto.py", line 113, in _proxy_request
+    return provider.make_request(method, params)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/providers/rpc.py", line 88, in make_request
+    raw_response = make_post_request(
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/_utils/request.py", line 102, in make_post_request
+    response = session.post(endpoint_uri, data=data, *args, **kwargs)  # type: ignore
+  File "/usr/local/lib/python3.8/dist-packages/requests/sessions.py", line 577, in post
+    return self.request('POST', url, data=data, json=json, **kwargs)
+  File "/usr/local/lib/python3.8/dist-packages/requests/sessions.py", line 529, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/usr/local/lib/python3.8/dist-packages/requests/sessions.py", line 645, in send
+    r = adapter.send(request, **kwargs)
+  File "/usr/local/lib/python3.8/dist-packages/requests/adapters.py", line 440, in send
+    resp = conn.urlopen(
+  File "/usr/local/lib/python3.8/dist-packages/urllib3/connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+  File "/usr/local/lib/python3.8/dist-packages/urllib3/connectionpool.py", line 449, in _make_request
+    six.raise_from(e, None)
+  File "<string>", line 3, in raise_from
+  File "/usr/local/lib/python3.8/dist-packages/urllib3/connectionpool.py", line 444, in _make_request
+    httplib_response = conn.getresponse()
+  File "/usr/lib/python3.8/http/client.py", line 1348, in getresponse
+    response.begin()
+  File "/usr/lib/python3.8/http/client.py", line 316, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib/python3.8/http/client.py", line 277, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+  File "/usr/lib/python3.8/socket.py", line 669, in readinto
+    return self._sock.recv_into(b)
+KeyboardInterrupt
+
+dsr@dell-PowerEdge-R740:~/experiments/m_ethereum/motivation_verify_db/expr_oprations/scripts$ python test7_execute_perf2.py 
+2022-10-07 21:33:35,016 - test7_execute_perf2.py[line:151] - INFO: 
+Start to connect blockchain network!
+2022-10-07 21:33:35,048 - test7_execute_perf2.py[line:152] - INFO: isConnected: True
+Traceback (most recent call last):
+  File "test7_execute_perf2.py", line 156, in <module>
+    m_contractAddress = deploy_contract()
+  File "test7_execute_perf2.py", line 21, in deploy_contract
+    gas_estimate = w3.eth.estimateGas({'data':code})
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/eth.py", line 868, in estimate_gas
+    return self._estimate_gas(transaction, block_identifier)
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/module.py", line 57, in caller
+    result = w3.manager.request_blocking(method_str,
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/manager.py", line 198, in request_blocking
+    return self.formatted_response(response,
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/manager.py", line 171, in formatted_response
+    raise ValueError(response["error"])
+ValueError: {'code': -32603, 'message': 'method handler crashed'}
+dsr@dell-PowerEdge-R740:~/experiments/m_ethereum/motivation_verify_db/expr_oprations/scripts$ python test7_execute_perf2.py 
+2022-10-07 22:49:10,894 - test7_execute_perf2.py[line:151] - INFO: 
+Start to connect blockchain network!
+2022-10-07 22:49:10,914 - test7_execute_perf2.py[line:152] - INFO: isConnected: True
+2022-10-07 22:49:10,995 - test7_execute_perf2.py[line:22] - INFO: gas_estimate:
+2022-10-07 22:49:10,995 - test7_execute_perf2.py[line:23] - INFO: 311291
+2022-10-07 22:49:15,410 - test7_execute_perf2.py[line:33] - INFO: tx_receipt:
+2022-10-07 22:49:15,411 - test7_execute_perf2.py[line:34] - INFO: AttributeDict({'blockHash': HexBytes('0x1ec45f1c2af45396fca5c76d2c0846e0ea8f508b75aa6615a4cd31a1b3eb1939'), 'blockNumber': 200, 'contractAddress': '0xd13E8552abBB1D83B092E764b43F036F86ee456d', 'cumulativeGasUsed': 311291, 'effectiveGasPrice': 1000000000, 'from': '0x24aD884F2436eDb6F81def2fA99E087087BE8A6E', 'gasUsed': 311291, 'logs': [], 'logsBloom': HexBytes('0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'), 'status': 1, 'to': None, 'transactionHash': HexBytes('0x165de91b3962ae83517ab9f4816b9862cca159bafcfb56033549e59308a81b8d'), 'transactionIndex': 0, 'type': '0x0'})
+2022-10-07 22:49:15,411 - test7_execute_perf2.py[line:35] - INFO: tx_receipt.contractAddress:
+2022-10-07 22:49:15,411 - test7_execute_perf2.py[line:36] - INFO: 0xd13E8552abBB1D83B092E764b43F036F86ee456d
+Traceback (most recent call last):
+  File "test7_execute_perf2.py", line 162, in <module>
+    setExpectedFibNum(contractInst, option, fib_arg)
+  File "test7_execute_perf2.py", line 58, in setExpectedFibNum
+    getNum = m_contractInst.functions.getFibonacci().call()
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/contract.py", line 970, in call
+    return call_contract_function(
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/contract.py", line 1525, in call_contract_function
+    return_data = web3.eth.call(
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/module.py", line 57, in caller
+    result = w3.manager.request_blocking(method_str,
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/manager.py", line 198, in request_blocking
+    return self.formatted_response(response,
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/manager.py", line 171, in formatted_response
+    raise ValueError(response["error"])
+ValueError: {'code': -32603, 'message': 'method handler crashed'}
+dsr@dell-PowerEdge-R740:~/experiments/m_ethereum/motivation_verify_db/expr_oprations/scripts$ 
+dsr@dell-PowerEdge-R740:~/experiments/m_ethereum/motivation_verify_db/expr_oprations/scripts$ 

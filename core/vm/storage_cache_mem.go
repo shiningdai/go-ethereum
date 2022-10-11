@@ -91,17 +91,19 @@ msc_b.sKey = 1; msc_b.sOffset = 0;msc_b.sValue = 16;
 // }
 
 // Address represents the 20 byte address of an Ethereum account.
-type Address [AddressLength]byte
+// type Address [AddressLength]byte
 type StorageKey [StorageUnitLength]byte
 
 // type StorageValue [StorageUnitLength]byte
-type StorageValue []byte
+// type StorageValue []byte
+// type StorageValue common.Hash
 
 // StorageSlot represents one store unit in storage, a key-value database
-type StorageSlot map[StorageKey]StorageValue
+// type StorageSlot map[StorageKey]common.Hash
 
 // type StorageCache map[Address]StorageSlot
-type StorageCache map[common.Address]StorageSlot
+// type StorageCache map[common.Address]StorageSlot
+type StorageCache map[common.Address]map[[32]byte]common.Hash
 
 // MemStorageCache implements a cache memory model for the ethereum storage.
 type MemStorageCache struct {
@@ -114,16 +116,18 @@ func NewMemStorageCache() *MemStorageCache {
 }
 
 // getValue returns the asked value with specific Address "addr" and StorageKey "key"
-func (msc *MemStorageCache) getValue(addr common.Address, key StorageKey) []byte {
+// func (msc *MemStorageCache) getValue(addr common.Address, key StorageKey) []byte {
+func (msc *MemStorageCache) getValue(addr common.Address, key StorageKey) common.Hash {
 	_, ok := msc.data[addr][key]
 	if ok {
 		return msc.data[addr][key]
 	}
-	return nil
+	return common.Hash{}
 }
 
 // setValue write StorageValue "value" into specific Address "addr" and StorageKey "key"
-func (msc *MemStorageCache) setValue(addr common.Address, key StorageKey, value StorageValue) []byte {
+// func (msc *MemStorageCache) setValue(addr common.Address, key StorageKey, value StorageValue) []byte {
+func (msc *MemStorageCache) setValue(addr common.Address, key StorageKey, value common.Hash) []byte {
 	msc.data[addr][key] = value
 	return nil
 }
@@ -135,7 +139,11 @@ func (msc *MemStorageCache) preload() []byte {
 }
 
 // preload implementation
-func (msc *MemStorageCache) persistence() []byte {
+func (msc *MemStorageCache) persist(interpreter *EVMInterpreter) {
 	// pass
-	return nil
+	for addr, skey := range msc.data {
+		for subkey, val := range skey {
+			interpreter.evm.StateDB.SetState(addr, subkey, val)
+		}
+	}
 }

@@ -121,6 +121,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	interpreterTs_begin := time.Now().UnixMicro() //毫秒为单位的时间戳
 	// Increment the call depth which is restricted to 1024
 	in.evm.depth++
+	info_runtime := fmt.Sprintf("Runtime information (call stack depth) : interpreter.evm.depth %v ", in.evm.depth)
 	defer func() { in.evm.depth-- }()
 
 	// Make sure the readOnly is only set if we aren't in readOnly yet.
@@ -156,10 +157,10 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		pc   = uint64(0) // program counter
 		cost uint64
 		// copies used by tracer
-		pcCopy  uint64 // needed for the deferred EVMLogger
-		gasCopy uint64 // for EVMLogger to log gas remaining before execution
-		logged  bool   // deferred EVMLogger should ignore already logged steps
-		res     []byte // result of the opcode execution function
+		// pcCopy  uint64 // needed for the deferred EVMLogger
+		// gasCopy uint64 // for EVMLogger to log gas remaining before execution
+		// logged  bool   // deferred EVMLogger should ignore already logged steps
+		res []byte // result of the opcode execution function
 	)
 	// Don't move this deferrred function, it's placed before the capturestate-deferred method,
 	// so that it get's executed _after_: the capturestate needs the stacks before
@@ -169,26 +170,26 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	}()
 	contract.Input = input
 
-	if in.cfg.Debug {
-		defer func() {
-			if err != nil {
-				if !logged {
-					in.cfg.Tracer.CaptureState(pcCopy, op, gasCopy, cost, callContext, in.returnData, in.evm.depth, err)
-				} else {
-					in.cfg.Tracer.CaptureFault(pcCopy, op, gasCopy, cost, callContext, in.evm.depth, err)
-				}
-			}
-		}()
-	}
+	// if in.cfg.Debug {
+	// 	defer func() {
+	// 		if err != nil {
+	// 			if !logged {
+	// 				in.cfg.Tracer.CaptureState(pcCopy, op, gasCopy, cost, callContext, in.returnData, in.evm.depth, err)
+	// 			} else {
+	// 				in.cfg.Tracer.CaptureFault(pcCopy, op, gasCopy, cost, callContext, in.evm.depth, err)
+	// 			}
+	// 		}
+	// 	}()
+	// }
 	// The Interpreter main run loop (contextual). This loop runs until either an
 	// explicit STOP, RETURN or SELFDESTRUCT is executed, an error occurred during
 	// the execution of one of the operations or until the done flag is set by the
 	// parent context.
 	for {
-		if in.cfg.Debug {
-			// Capture pre-execution values for tracing.
-			logged, pcCopy, gasCopy = false, pc, contract.Gas
-		}
+		// if in.cfg.Debug {
+		// 	// Capture pre-execution values for tracing.
+		// 	logged, pcCopy, gasCopy = false, pc, contract.Gas
+		// }
 		// Get the operation from the jump table and validate the stack to ensure there are
 		// enough stack items available to perform the operation.
 		op = contract.GetOp(pc)
@@ -233,10 +234,10 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 				mem.Resize(memorySize)
 			}
 		}
-		if in.cfg.Debug {
-			in.cfg.Tracer.CaptureState(pc, op, gasCopy, cost, callContext, in.returnData, in.evm.depth, err)
-			logged = true
-		}
+		// if in.cfg.Debug {
+		// 	in.cfg.Tracer.CaptureState(pc, op, gasCopy, cost, callContext, in.returnData, in.evm.depth, err)
+		// 	logged = true
+		// }
 		// execute the operation
 
 		// beginTs := time.Now().UnixMicro() //毫秒为单位的时间戳
@@ -245,24 +246,11 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		// endTs := time.Now().UnixMicro()
 		endTs := time.Now().UnixNano()
 
-		// timeCost := endTs - beginTs
-		// opStr := op.String()
-		// instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns, beginTs:%v ns, endTs:%v ns", opStr, timeCost, beginTs, endTs)
-
-		// fAll, _errAll := os.OpenFile("./allInstTimeStamp.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
-		// if _errAll != nil {
-		// 	fmt.Println(_errAll.Error())
-		// }
-		// defer fAll.Close()
-		// currentTime := time.Now()
-		// fAll.WriteString(currentTime.String()[:25] + ":")
-		// fAll.WriteString(instExeInfo + "\n")
-
 		if op >= MLOAD && op <= SSTORE {
 			timeCost := endTs - beginTs
 			opStr := op.String()
 			instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns, beginTs:%v ns, endTs:%v ns", opStr, timeCost, beginTs, endTs)
-			f, _err := os.OpenFile("./storageOpcodesTimeStamp.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+			f, _err := os.OpenFile("./dversion0/storageOpcodesTimeStamp.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
 			// instExeInfo := fmt.Sprintf("Instruction %s executing time(ms), timeCost:%v ms, beginTs:%v ms, endTs:%v ms", str, timeCost, beginTs, endTs)
 			// instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns, beginTs:%v ns, endTs:%v ns", str, timeCost, beginTs, endTs)
 			if _err != nil {
@@ -270,6 +258,9 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			}
 			defer f.Close()
 			currentTime := time.Now()
+			// in.evm.depth
+			// info_runtime := fmt.Sprintf("Runtime information (call stack depth) : interpreter.evm.depth %v ", in.evm.depth)
+			f.WriteString(info_runtime + "\n")
 			f.WriteString(currentTime.String()[:25] + ":")
 			f.WriteString(instExeInfo + "\n")
 		}
@@ -278,6 +269,8 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		}
 		pc++
 	}
+	// 持久化
+	callContext.StorageCache.persist(in)
 
 	if err == errStopToken {
 		err = nil // clear stop token error
@@ -285,12 +278,13 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	interpreterTs_end := time.Now().UnixMicro() //毫秒为单位的时间戳
 	interpreterTimeCost := interpreterTs_end - interpreterTs_begin
 	timeInfo := fmt.Sprintf("This interpreter instance executing time(ms):%v ms", interpreterTimeCost)
-	fAll, _errAll := os.OpenFile("./interpreterTimeStamp.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+	fAll, _errAll := os.OpenFile("./dversion0/full-interpreter-TimeStamp.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
 	if _errAll != nil {
 		fmt.Println(_errAll.Error())
 	}
 	defer fAll.Close()
 	currentTime := time.Now()
+	fAll.WriteString(info_runtime + "\n")
 	fAll.WriteString(currentTime.String()[:25] + ":")
 	fAll.WriteString(timeInfo + "\n")
 	return res, err
