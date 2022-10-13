@@ -157,10 +157,10 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		pc   = uint64(0) // program counter
 		cost uint64
 		// copies used by tracer
-		// pcCopy  uint64 // needed for the deferred EVMLogger
-		// gasCopy uint64 // for EVMLogger to log gas remaining before execution
-		// logged  bool   // deferred EVMLogger should ignore already logged steps
-		res []byte // result of the opcode execution function
+		pcCopy  uint64 // needed for the deferred EVMLogger
+		gasCopy uint64 // for EVMLogger to log gas remaining before execution
+		logged  bool   // deferred EVMLogger should ignore already logged steps
+		res     []byte // result of the opcode execution function
 	)
 	// Don't move this deferrred function, it's placed before the capturestate-deferred method,
 	// so that it get's executed _after_: the capturestate needs the stacks before
@@ -170,26 +170,26 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	}()
 	contract.Input = input
 
-	// if in.cfg.Debug {
-	// 	defer func() {
-	// 		if err != nil {
-	// 			if !logged {
-	// 				in.cfg.Tracer.CaptureState(pcCopy, op, gasCopy, cost, callContext, in.returnData, in.evm.depth, err)
-	// 			} else {
-	// 				in.cfg.Tracer.CaptureFault(pcCopy, op, gasCopy, cost, callContext, in.evm.depth, err)
-	// 			}
-	// 		}
-	// 	}()
-	// }
+	if in.cfg.Debug {
+		defer func() {
+			if err != nil {
+				if !logged {
+					in.cfg.Tracer.CaptureState(pcCopy, op, gasCopy, cost, callContext, in.returnData, in.evm.depth, err)
+				} else {
+					in.cfg.Tracer.CaptureFault(pcCopy, op, gasCopy, cost, callContext, in.evm.depth, err)
+				}
+			}
+		}()
+	}
 	// The Interpreter main run loop (contextual). This loop runs until either an
 	// explicit STOP, RETURN or SELFDESTRUCT is executed, an error occurred during
 	// the execution of one of the operations or until the done flag is set by the
 	// parent context.
 	for {
-		// if in.cfg.Debug {
-		// 	// Capture pre-execution values for tracing.
-		// 	logged, pcCopy, gasCopy = false, pc, contract.Gas
-		// }
+		if in.cfg.Debug {
+			// Capture pre-execution values for tracing.
+			logged, pcCopy, gasCopy = false, pc, contract.Gas
+		}
 		// Get the operation from the jump table and validate the stack to ensure there are
 		// enough stack items available to perform the operation.
 		op = contract.GetOp(pc)
@@ -234,12 +234,12 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 				mem.Resize(memorySize)
 			}
 		}
-		// if in.cfg.Debug {
-		// 	in.cfg.Tracer.CaptureState(pc, op, gasCopy, cost, callContext, in.returnData, in.evm.depth, err)
-		// 	logged = true
-		// }
-		// execute the operation
+		if in.cfg.Debug {
+			in.cfg.Tracer.CaptureState(pc, op, gasCopy, cost, callContext, in.returnData, in.evm.depth, err)
+			logged = true
+		}
 
+		// execute the operation
 		// beginTs := time.Now().UnixMicro() //毫秒为单位的时间戳
 		beginTs := time.Now().UnixNano() //以毫秒为单位差异不大，存在很多为零的情况，采用更精确的纳秒为单位的时间戳
 		res, err = operation.execute(&pc, in, callContext)
