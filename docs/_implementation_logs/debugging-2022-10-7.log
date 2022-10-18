@@ -182,3 +182,61 @@ Traceback (most recent call last):
 ValueError: {'code': -32603, 'message': 'method handler crashed'}
 dsr@dell-PowerEdge-R740:~/experiments/m_ethereum/motivation_verify_db/expr_oprations/scripts$ 
 dsr@dell-PowerEdge-R740:~/experiments/m_ethereum/motivation_verify_db/expr_oprations/scripts$ 
+
+
+
+-----------------------------------------------------------------------------------------------------------------
+ERROR: 以上基本可以确定是因为 golang 的 map 初始化赋值所致
+ERROR：以下问题的原因还在排查中
+-----------------------------------------------------------------------------------------------------------------
+
+
+dsr@dell-PowerEdge-R740:~/experiments/m_ethereum/motivation_verify_db/expr_oprations/scripts$ python test7_execute_perf2.py 
+2022-10-14 10:05:25,986 - test7_execute_perf2.py[line:151] - INFO: 
+Start to connect blockchain network!
+2022-10-14 10:05:26,026 - test7_execute_perf2.py[line:152] - INFO: isConnected: True
+Making request. Method:  eth_accounts
+Making request. Method:  personal_unlockAccount
+Making request. Method:  eth_call
+Making request. Method:  eth_chainId
+Making request. Method:  eth_getCode
+Traceback (most recent call last):
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/contract.py", line 1537, in call_contract_function
+    output_data = web3.codec.decode_abi(output_types, return_data)
+  File "/home/dsr/.local/lib/python3.8/site-packages/eth_abi/codec.py", line 196, in decode_abi
+    return self.decode(types, data)
+  File "/home/dsr/.local/lib/python3.8/site-packages/eth_abi/codec.py", line 210, in decode
+    return decoder(stream)
+  File "/home/dsr/.local/lib/python3.8/site-packages/eth_abi/decoding.py", line 127, in __call__
+    return self.decode(stream)
+  File "/home/dsr/.local/lib/python3.8/site-packages/eth_utils/functional.py", line 45, in inner
+    return callback(fn(*args, **kwargs))
+  File "/home/dsr/.local/lib/python3.8/site-packages/eth_abi/decoding.py", line 173, in decode
+    yield decoder(stream)
+  File "/home/dsr/.local/lib/python3.8/site-packages/eth_abi/decoding.py", line 127, in __call__
+    return self.decode(stream)
+  File "/home/dsr/.local/lib/python3.8/site-packages/eth_abi/decoding.py", line 198, in decode
+    raw_data = self.read_data_from_stream(stream)
+  File "/home/dsr/.local/lib/python3.8/site-packages/eth_abi/decoding.py", line 305, in read_data_from_stream
+    raise InsufficientDataBytes(
+eth_abi.exceptions.InsufficientDataBytes: Tried to read 32 bytes.  Only got 0 bytes
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "test7_execute_perf2.py", line 165, in <module>
+    setExpectedFibNum(contractInst, option, fib_arg)
+  File "test7_execute_perf2.py", line 58, in setExpectedFibNum
+    getNum = m_contractInst.functions.getFibonacci().call()
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/contract.py", line 970, in call
+    return call_contract_function(
+  File "/home/dsr/.local/lib/python3.8/site-packages/web3/contract.py", line 1554, in call_contract_function
+    raise BadFunctionCallOutput(msg) from e
+web3.exceptions.BadFunctionCallOutput: Could not transact with/call contract function, is contract deployed correctly and chain synced?
+dsr@dell-PowerEdge-R740:~/experiments/m_ethereum/motivation_verify_db/expr_oprations/scripts$ 
+
+-----------------------------------------------------------------------------------------------------------------
+ERROR: 上面问题是由于合约地址不存在，可能是交易同步到底层存储的问题，具体问题尚不清楚，通过每次调用合约前部署合约可解决
+ERROR: 以上问题具体原因尚不清楚，但目前已经可以通过以往部署合约的地址进行合约方法调用
+ERROR：以下问题的原因还在排查中
+-----------------------------------------------------------------------------------------------------------------
