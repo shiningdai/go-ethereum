@@ -17,7 +17,11 @@
 package vm
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 // Lengths of hashes and addresses in bytes.
@@ -49,13 +53,15 @@ msc_b.sKey = 1; msc_b.sOffset = 0;msc_b.sValue = 16;
 比如上面hash计算的时候，loc有一个转换成Bytes32的过程，是不是sKey可以直接定义为[32]byte类型
 */
 
-type StorageCache map[common.Address]map[[32]byte]common.Hash
+// type StorageCache map[common.Address]map[[32]byte]common.Hash
 
 // 重新考虑一下 StorageCache 的数据结构，考虑增加一个dity字段，仅对dity状态的变量进行持久化
 
 // MemStorageCache implements a cache memory model for the ethereum storage.
 type MemStorageCache struct {
-	data StorageCache // one slot : key -> value
+	// data StorageCache // one slot : key -> value
+	data map[common.Address]map[[32]byte]common.Hash
+	// dity map[common.Address]map[[32]byte]bool
 }
 
 // NewMemStorageCache returns a new MemStorageCache model.
@@ -76,22 +82,49 @@ func (msc *MemStorageCache) getValue(addr common.Address, key [32]byte) common.H
 // setValue write StorageValue "value" into specific Address "addr" and StorageKey "key"
 // func (msc *MemStorageCache) setValue(addr common.Address, key StorageKey, value StorageValue) []byte {
 func (msc *MemStorageCache) setValue(addr common.Address, key [32]byte, value common.Hash) []byte {
+	if msc.data == nil {
+		msc.data = make(map[common.Address]map[[32]byte]common.Hash)
+	}
+	_, ok := msc.data[addr][key]
+	if ok {
+		msc.data[addr][key] = value
+		return nil
+	}
+	msc.data[addr] = make(map[[32]byte]common.Hash)
 	msc.data[addr][key] = value
 	return nil
 }
 
 // preload implementation
-func (msc *MemStorageCache) preload() []byte {
+func (msc *MemStorageCache) preload(scope *ScopeContext) []byte {
+	log.Info("Function preload is executting!")
 	// pass
+	// _data := make(map[common.Address]map[[32]byte]common.Hash)
+	// _data[scope.Contract.Address()] = make(map[[32]byte]common.Hash)
+	// msc.data = _data
+	msc.data = make(map[common.Address]map[[32]byte]common.Hash)
+	msc.data[scope.Contract.Address()] = make(map[[32]byte]common.Hash)
 	return nil
 }
 
 // preload implementation
 func (msc *MemStorageCache) persist(interpreter *EVMInterpreter) {
 	// pass
+	m_log, _err := os.OpenFile("./dversion0/persist_storage_state.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+	if _err != nil {
+		fmt.Println(_err.Error())
+	}
+	defer m_log.Close()
+
+	message := "Current executing persist process!"
+	m_log.WriteString(message + "\n")
 	for addr, skey := range msc.data {
 		for subkey, val := range skey {
 			interpreter.evm.StateDB.SetState(addr, subkey, val)
+			// 打印输出，查看MemStorageCache的状态
+			message = fmt.Sprintf("Address: %v	\nloc_key= %v  \nloc_value= %v \n\n\n", addr.Bytes(), subkey, val.Bytes())
+			m_log.WriteString(message)
+
 		}
 	}
 }

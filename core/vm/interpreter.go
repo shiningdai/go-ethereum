@@ -121,7 +121,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	interpreterTs_begin := time.Now().UnixMicro() //毫秒为单位的时间戳
 	// Increment the call depth which is restricted to 1024
 	in.evm.depth++
-	info_runtime := fmt.Sprintf("Runtime information (call stack depth) : interpreter.evm.depth %v ", in.evm.depth)
+	info_runtime := fmt.Sprintf("\n\nRuntime information (call stack depth) : interpreter.evm.depth %v ", in.evm.depth)
 	defer func() { in.evm.depth-- }()
 
 	// Make sure the readOnly is only set if we aren't in readOnly yet.
@@ -169,6 +169,9 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		returnStack(stack)
 	}()
 	contract.Input = input
+
+	// // 预加载
+	// go callContext.StorageCache.preload(callContext)
 
 	if in.cfg.Debug {
 		defer func() {
@@ -249,8 +252,10 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		if op >= MLOAD && op <= SSTORE {
 			timeCost := endTs - beginTs
 			opStr := op.String()
-			instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns, beginTs:%v ns, endTs:%v ns", opStr, timeCost, beginTs, endTs)
-			f, _err := os.OpenFile("./dversion0/storageOpcodesTimeStamp.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+			// instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns, beginTs:%v ns, endTs:%v ns", opStr, timeCost, beginTs, endTs)
+			instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns", opStr, timeCost)
+			f, _err := os.OpenFile("./dversion0/modified_operation_execution_time.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+			// f, _err := os.OpenFile("./dversion0/original_operation_execution_time.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
 			// instExeInfo := fmt.Sprintf("Instruction %s executing time(ms), timeCost:%v ms, beginTs:%v ms, endTs:%v ms", str, timeCost, beginTs, endTs)
 			// instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns, beginTs:%v ns, endTs:%v ns", str, timeCost, beginTs, endTs)
 			if _err != nil {
@@ -269,7 +274,12 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		}
 		pc++
 	}
+
 	// 持久化
+	// go callContext.StorageCache.persist(in)
+	// // go func() bool {
+	// // 	callContext.StorageCache.persist(in)
+	// // }
 	callContext.StorageCache.persist(in)
 
 	if err == errStopToken {
@@ -278,14 +288,15 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	interpreterTs_end := time.Now().UnixMicro() //毫秒为单位的时间戳
 	interpreterTimeCost := interpreterTs_end - interpreterTs_begin
 	timeInfo := fmt.Sprintf("This interpreter instance executing time(ms):%v ms", interpreterTimeCost)
-	fAll, _errAll := os.OpenFile("./dversion0/full-interpreter-TimeStamp.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+	f_interpreter, _errAll := os.OpenFile("./dversion0/modified-full-interpreter-exeTime.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+	// f_interpreter, _errAll := os.OpenFile("./dversion0/original-full-interpreter-exeTime.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
 	if _errAll != nil {
 		fmt.Println(_errAll.Error())
 	}
-	defer fAll.Close()
+	defer f_interpreter.Close()
 	currentTime := time.Now()
-	fAll.WriteString(info_runtime + "\n")
-	fAll.WriteString(currentTime.String()[:25] + ":")
-	fAll.WriteString(timeInfo + "\n")
+	f_interpreter.WriteString(info_runtime + "\n")
+	f_interpreter.WriteString(currentTime.String()[:25] + ":")
+	f_interpreter.WriteString(timeInfo + "\n")
 	return res, err
 }

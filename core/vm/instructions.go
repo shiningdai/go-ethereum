@@ -519,15 +519,14 @@ func opMstore8(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]
 // // 不直接访问stateDB，先访问新添加的MemStorageCache，如果“未命中”再执行原来的opSload和opSstore过程
 
 func opSload(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
-	// m_log, _err := os.OpenFile("./dversion0/opSload_and_opSstore_modified.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
-	m_log, _err := os.OpenFile("./dversion0/state_variable_rw_value.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+	m_log, _err := os.OpenFile("./dversion0/sload_trace.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
 	if _err != nil {
 		fmt.Println(_err.Error())
 	}
 	defer m_log.Close()
 
-	// message := "Current executing opcode SLOAD"
-	// m_log.WriteString(message + "\n")
+	message := "Current executing opcode SLOAD!"
+	m_log.WriteString(message + "\n")
 
 	loc := scope.Stack.peek()
 	val := scope.StorageCache.getValue(scope.Contract.Address(), loc.Bytes32())
@@ -536,8 +535,8 @@ func opSload(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]by
 	// m_log.WriteString(message + "\n")
 
 	if val == (common.Hash{}) {
-		// message = "[val] is common.Hash{}, need to load value from statedb by GetState()."
-		// m_log.WriteString(message + "\n")
+		message = "Cache missed, need to load value from statedb by GetState()."
+		m_log.WriteString(message + "\n")
 
 		hash := common.Hash(loc.Bytes32())
 		val = interpreter.evm.StateDB.GetState(scope.Contract.Address(), hash)
@@ -552,18 +551,18 @@ func opSload(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]by
 	// m_log.WriteString(message + "\n")
 	loc.SetBytes(val.Bytes())
 
-	message := fmt.Sprintf("SLOAD: 		loc= %v    val= %v", loc.Bytes32(), val.Bytes())
-	m_log.WriteString(message + "\n")
+	// message := fmt.Sprintf("SLOAD: 		loc= %v    val= %v", loc.Bytes32(), val.Bytes())
+	// m_log.WriteString(message + "\n")
 
 	return nil, nil
 }
 
 func opSstore(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
-	m_log, _err := os.OpenFile("./dversion0/state_variable_rw_value.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
-	if _err != nil {
-		fmt.Println(_err.Error())
-	}
-	defer m_log.Close()
+	// m_log, _err := os.OpenFile("./dversion0/state_variable_rw_value.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+	// if _err != nil {
+	// 	fmt.Println(_err.Error())
+	// }
+	// defer m_log.Close()
 
 	// message := "Current executing opcode SSTORE"
 	// m_log.WriteString(message + "\n")
@@ -581,18 +580,18 @@ func opSstore(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]b
 	scope.StorageCache.setValue(scope.Contract.Address(),
 		loc.Bytes32(), val.Bytes32())
 
-	message := fmt.Sprintf("SSTORE: 	loc= %v    val= %v", loc.Bytes32(), val.Bytes32())
-	m_log.WriteString(message + "\n")
+	// message := fmt.Sprintf("SSTORE: 	loc= %v    val= %v", loc.Bytes32(), val.Bytes32())
+	// m_log.WriteString(message + "\n")
 
 	return nil, nil
 }
 
 // func opSload(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
-// 	m_log, _err := os.OpenFile("./dversion0/origin_state_variable_rw_value.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
-// 	if _err != nil {
-// 		fmt.Println(_err.Error())
-// 	}
-// 	defer m_log.Close()
+// 	// m_log, _err := os.OpenFile("./dversion0/origin_state_variable_rw_value.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+// 	// if _err != nil {
+// 	// 	fmt.Println(_err.Error())
+// 	// }
+// 	// defer m_log.Close()
 
 // 	// message := "Current executing opcode SLOAD"
 // 	// m_log.WriteString(message + "\n")
@@ -606,18 +605,18 @@ func opSstore(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]b
 
 // 	loc.SetBytes(val.Bytes())
 
-// 	message := fmt.Sprintf("SLOAD: 		loc= %v    val= %v", loc.Bytes32(), val.Bytes())
-// 	m_log.WriteString(message + "\n")
+// 	// message := fmt.Sprintf("SLOAD: 		loc= %v    val= %v", loc.Bytes32(), val.Bytes())
+// 	// m_log.WriteString(message + "\n")
 
 // 	return nil, nil
 // }
 
 // func opSstore(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]byte, error) {
-// 	m_log, _err := os.OpenFile("./dversion0/origin_state_variable_rw_value.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
-// 	if _err != nil {
-// 		fmt.Println(_err.Error())
-// 	}
-// 	defer m_log.Close()
+// 	// m_log, _err := os.OpenFile("./dversion0/origin_state_variable_rw_value.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+// 	// if _err != nil {
+// 	// 	fmt.Println(_err.Error())
+// 	// }
+// 	// defer m_log.Close()
 
 // 	// message := "Current executing opcode SSTORE"
 // 	// m_log.WriteString(message + "\n")
@@ -634,8 +633,8 @@ func opSstore(pc *uint64, interpreter *EVMInterpreter, scope *ScopeContext) ([]b
 // 	interpreter.evm.StateDB.SetState(scope.Contract.Address(),
 // 		loc.Bytes32(), val.Bytes32())
 
-// 	message := fmt.Sprintf("SSTORE: 	loc= %v    val= %v", loc.Bytes32(), val.Bytes32())
-// 	m_log.WriteString(message + "\n")
+// 	// message := fmt.Sprintf("SSTORE: 	loc= %v    val= %v", loc.Bytes32(), val.Bytes32())
+// 	// m_log.WriteString(message + "\n")
 
 // 	return nil, nil
 // }
