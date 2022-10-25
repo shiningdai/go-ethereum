@@ -249,13 +249,13 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		// endTs := time.Now().UnixMicro()
 		endTs := time.Now().UnixNano()
 
-		if op >= MLOAD && op <= SSTORE {
+		if op >= SLOAD && op <= SSTORE {
 			timeCost := endTs - beginTs
 			opStr := op.String()
 			// instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns, beginTs:%v ns, endTs:%v ns", opStr, timeCost, beginTs, endTs)
 			instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns", opStr, timeCost)
-			f, _err := os.OpenFile("./dversion0/modified_operation_execution_time.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
-			// f, _err := os.OpenFile("./dversion0/original_operation_execution_time.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+			// f, _err := os.OpenFile("./dversion0/1025/modified_operation_execution_time_2.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+			f, _err := os.OpenFile("./dversion0/1025/original_operation_execution_time_2.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
 			// instExeInfo := fmt.Sprintf("Instruction %s executing time(ms), timeCost:%v ms, beginTs:%v ms, endTs:%v ms", str, timeCost, beginTs, endTs)
 			// instExeInfo := fmt.Sprintf("Instruction %s executing time(ns), timeCost:%v ns, beginTs:%v ns, endTs:%v ns", str, timeCost, beginTs, endTs)
 			if _err != nil {
@@ -288,8 +288,8 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 	interpreterTs_end := time.Now().UnixMicro() //毫秒为单位的时间戳
 	interpreterTimeCost := interpreterTs_end - interpreterTs_begin
 	timeInfo := fmt.Sprintf("This interpreter instance executing time(ms):%v ms", interpreterTimeCost)
-	f_interpreter, _errAll := os.OpenFile("./dversion0/modified-full-interpreter-exeTime.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
-	// f_interpreter, _errAll := os.OpenFile("./dversion0/original-full-interpreter-exeTime.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+	// f_interpreter, _errAll := os.OpenFile("./dversion0/1025/modified-full-interpreter-exeTime_2.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+	f_interpreter, _errAll := os.OpenFile("./dversion0/1025/original-full-interpreter-exeTime_2.log", os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
 	if _errAll != nil {
 		fmt.Println(_errAll.Error())
 	}
